@@ -95,16 +95,10 @@ module.exports.updateListing = async (req, res) => {
     res.redirect(`/listings/${id}`);
 };
 
-
 module.exports.deleteListing = async (req, res) => {
     let { id } = req.params;
 
-    let deletedListing = await Listing.findByIdAndDelete(id);
-
-    if (deletedListing.image && deletedListing.image.filename) {
-        const cloudinary = require("../cloudConfig");
-        await cloudinary.uploader.destroy(deletedListing.image.filename);
-    }
+    await Listing.findByIdAndDelete(id);
 
     req.flash("success", "Listing Deleted!");
     res.redirect("/listings");
