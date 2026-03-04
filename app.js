@@ -26,10 +26,17 @@ app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 
+app.get("/", (req, res) => {
+    res.redirect("/listings");
+});
+
 async function startServer() {
-    await mongoose.connect(process.env.ATLASDB_URL);
-    //console.log(process.env.ATLASDB_URL);
-    console.log("connected to DB");
+    try {
+        await mongoose.connect(process.env.ATLASDB_URL);
+        console.log("connected to DB");
+    } catch (err) {
+        console.log("DB Connection Error: ", err);
+    }
 
     const store = MongoStore.create({
         client: mongoose.connection.getClient(),
@@ -64,9 +71,8 @@ async function startServer() {
     });
 
     app.use("/listings", listingsRouter);
-    app.use("/listings/:id/review", reviewsRouter);
+    app.use("/listings/:id/reviews", reviewsRouter);
     app.use("/", userRouter);
-
     app.use((req, res, next) => {
         next(new ExpressError(404, "Page Not Found!"));
     });
